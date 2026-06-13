@@ -39,7 +39,7 @@ Befundlage (Analyse 2026-06-12): 1666 Commits in 3,5 Monaten. Code gesund — 57
 - **L1 — Regel folgt Schmerz, nie umgekehrt.** 36 % aller Commits waren reine Doku, dazu ~150 npm-Scripts und 23 Check-Gates; am Ende blockierten die Gates sogar docs-only-Commits. Neue Pflichtregeln entstehen nur noch aus wiederholten, echten Problemen (Teil 6).
 - **L2 — Eine Wahrheitsquelle pro Thema.** Vier parallele Planquellen (Master, generierter Index, Wissensgraph, Changelog) machten den Abgleich zum eigenen Arbeitstyp. Keine generierten Zweitkopien, keine Schatten-Wahrheiten.
 - **L3 — Kein Meta-Tooling ohne expliziten Auftrag.** Wissensgraph (4113 Knoten), Graph-RAG, Plan-Autopilot, Lock-Registry im Single-Agent-Betrieb: alles technisch funktionsfähig — und zusammen die Hauptlast des Projekts. Im Neuaufbau sind Graph und RAG **Entscheidungen mit Default „nein"** (E11/E12), keine geplanten Phasen.
-- **L4 — Alt-Tests sind bezahltes Wissen.** Die produktnahen Tests (Ghost, Blueprint, Physics, Smokes) werden migriert, nicht neu generiert; AI-generierte Tests sind messbar schwächer als kampferprobte.
+- **L4 — Alt-Tests sind bezahltes Wissen — aber nur geprüft.** Die produktnahen Tests (Ghost, Blueprint, Physics, Smokes) werden migriert, nicht neu generiert; AI-generierte Tests sind messbar schwächer als kampferprobte. Ein migrierter Test gilt jedoch erst als Orakel, wenn er einen injizierten Bug fängt (Orakel-Check, Phase 2); sonst tritt der Golden-Master aus dem laufenden Altverhalten an seine Stelle.
 - **L5 — Migrieren als Default.** Die Edge-Cases im Altcode (Ghost-Persistenz, Tilt-Kalibrierung, Orientation-Handling) sind teuer bezahlte Bugs. Neuschreiben nur mit Begründung; dokumentierte Ausnahmen: P45 (`UIStartSyncController.js`, Listener-Duplikation) und P48 (Recording-Pfad).
 - **L6 — AI baut ohne Grenzen Apparat.** Auch im Altrepo schrieb die AI den Code — und errichtete nebenbei den Meta-Apparat. Die Stop-Regeln (Teil 3) richten sich deshalb an die AI und stehen in der `CLAUDE.md` des neuen Repos.
 - **L7 — Eine aktive Plan-Datei.** 168 Plan-Dateien in 3,5 Monaten; 34 erledigte Pläne lagen weiter im „aktiv"-Ordner. Dieser Plan hier ist der einzige Plan. Er wird fortgeschrieben, nicht vervielfacht.
@@ -120,11 +120,13 @@ Die dünnste durchgehende, produktionsechte spielbare Scheibe — kein Prototyp,
 
 Gate B (E7) vorab beantworten. Quellpfade = Altrepo; es bleibt parallel lesbar als reine read-only-Referenz (ohne Live-Routing — „Strangler" hier im übertragenen Sinn; präziser: inkrementelle Modul-Migration).
 
+**Optionaler Orakel-Spike (empfohlen, vorgezogen):** Bevor der Kern auf das Orakel gebaut wird, an *einem* edge-case-schweren Modul (z. B. Ghost, sonst Phase 3) einmalig prüfen: Hält die Determinismus-Annahme (gleiche Seeds → reproduzierbare Trace)? Fangen die zugehörigen Alt-Tests einen injizierten Bug? Bestätigt sich das nicht, ist das ein Befund für die erste Session, nicht für Phase 5 — kostet ~1 Session und ersetzt die Grundsatzdebatte Migration-vs-Rewrite durch Daten.
+
 Reihenfolge: benötigte Contracts (`src/shared/contracts/`) → Bootstrap/Loop (`main.js`, `GameBootstrap.js`, `AppInitializer.js`) → Renderer (**ohne** Recording-Pfad, P48 bleibt zurück) → Input Desktop → `ClassicModeStrategy` + `GameModeRegistry` → Entities + State.
 
-**Fester Takt pro Modul:** kopieren → Imports anpassen → zugehörige Alt-Tests aus `tests/` mitnehmen → Lint/Typecheck/Tests/Build selbst ausführen → Landkarten-Zeile (mit Herkunft) → Commit mit Ein-Satz-Meldung.
+**Fester Takt pro Modul:** kopieren → Imports anpassen → zugehörige Alt-Tests aus `tests/` mitnehmen → **Orakel-Check** (ein bewusst injizierter Bug muss von den migrierten Tests gefangen werden — sonst gelten sie nicht als Orakel und werden durch einen Golden-Master ersetzt) → Lint/Typecheck/Tests/Build selbst ausführen → Landkarten-Zeile (mit Herkunft) → Commit mit Ein-Satz-Meldung.
 
-**Determinismus-Anker:** gleiche Seeds, gleiche Ergebnisse gegen das Altrepo; die migrierten Contract-Tests und die Ghost-Traces des Altrepos sind die Fixtures dafür.
+**Determinismus-Anker:** gleiche Seeds, gleiche Ergebnisse gegen das Altrepo; die migrierten Contract-Tests und die Ghost-Traces des Altrepos sind die Fixtures dafür. **Wenn migrierte Tests sich als schwach erweisen** (Orakel-Check schlägt fehl), wird das Orakel als **Golden-Master** direkt aus dem laufenden Altverhalten erzeugt (Seed → Trace/Score/Ghost-Spur) statt aus der Alt-Suite — das hängt nur davon ab, dass der Altcode läuft, nicht von der Test-Qualität. Golden-Master gilt für die **Simulation**; **Rendering/Optik** prüft der Playtest (Simulation ⊥ Renderer).
 
 **Go/No-Go (Timebox):** Ist die Classic-Runde nach ~3 Arbeitssitzungen nicht spielbar, wird der Migrationsansatz bewusst neu bewertet — adressiert das Risiko „Migration wird nie fertig" (befund.md §3). Die Playtest-Checkpoints prüfen Qualität; dieser Punkt prüft, ob die Migration aus dem Ruder läuft. (Sitzungszahl anpassbar.)
 
