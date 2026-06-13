@@ -4,6 +4,11 @@ Stand: 2026-06-12. **Kanonischer Plan.** Konsolidiert aus drei Vorlagen: `claude
 
 Zweck dieses Repos: den Aufbau des neuen Spiel-Repos Schritt für Schritt zu planen. Dieser Plan ist die Grundlage für **alle** Entscheidungen — von der ersten Grundsatzfrage bis zum Release.
 
+**Aufbau dieses Repos (Entscheidungshilfe):**
+- [`plan.md`](plan.md) — dieser Plan: Index, Phasen, Status. Eine Wahrheitsquelle.
+- [`befund.md`](befund.md) — read-only Faktenbasis (Altrepo-Analyse), auf die sich alle Empfehlungen berufen.
+- [`gates/`](gates/) — ein Entscheidungsblatt pro Gate (A–F) mit Fakten, Optionen, Empfehlung und Entscheidungszeile. Hier triffst du die Entscheidungen.
+
 Die Grundlage des Plans ist zweiteilig:
 
 1. **Die Spielidee** wird aus dem Altrepo übernommen (Teil 1). Sie steht nicht zur Debatte.
@@ -74,54 +79,18 @@ Befundlage (Analyse 2026-06-12): 1666 Commits in 3,5 Monaten. Code gesund — 57
 
 ## Teil 4 — Alle Entscheidungen (E1–E15)
 
-Jede Entscheidung ist User-owned. Die AI bereitet Optionen vor, entscheidet aber nie stillschweigend. Jede getroffene Entscheidung wird im neuen Repo als ADR abgelegt (Format siehe unten) und hier in der Tabelle mit ADR-Nummer als „entschieden" markiert.
+Jede Entscheidung ist User-owned. Die AI bereitet Optionen vor, entscheidet aber nie stillschweigend. Die **ausgearbeiteten Entscheidungsblätter** liegen je Gate in `gates/` (Frage, Fakten aus [`befund.md`](befund.md), Optionen mit Konsequenzen, Empfehlung, Entscheidungszeile). Dieser Abschnitt ist nur der Index. Sobald eine Entscheidung gefallen ist, wird sie im neuen Repo als ADR abgelegt und hier in der Status-Spalte mit ADR-Nummer markiert.
 
 **Entscheidungsprozess für größere Fragen:** Optionen aufschreiben → Kriterien benennen (Gameplay-Fit, Komplexität, Wartbarkeit, Testbarkeit) → bei Unsicherheit Mini-Prototyp statt Diskussion → Ergebnis als ADR → nach 2–4 Wochen prüfen, ob die Entscheidung noch passt (supersedieren statt editieren).
 
-### Gate A — vor dem ersten Commit (Phase 0)
-
-| ID | Frage | Optionen | Empfehlung | Status |
+| Gate | Blatt | Fällig | Entscheidungen | Status |
 | --- | --- | --- | --- | --- |
-| E1 | Ziel-Targets und **ein** Start-Target? | Browser / Desktop-Electron / Android zuerst; Endausbau aus: Desktop, Browser, Android, Editor, Multiplayer | Ein Start-Target (Browser oder Desktop), Rest erst nach lauffähigem Kern entscheiden | offen |
-| E2 | Stack: three.js-Version heben? JS oder TS? | three.js alt pinnen vs. einmalig heben; JS 1:1 vs. TS strict vs. Mischform | three.js einmalig heben (Phase 1, solange wenig Code da ist); neue Module TS strict, migrierte Module zunächst JS 1:1 als Verhaltensanker, Konversion später pro Modul. Typecheck-Abdeckung explizit definieren (`allowJs`/`checkJs`) | offen |
-| E3 | Migrationsregel bestätigen? | Migrieren als Default, Neuschreiben nur mit Begründung vs. pro Modul frei entscheiden vs. Rewrite | Migrieren als Default (L5); benannte Ausnahmen: P45, P48 | offen |
-| E4 | Repo-Struktur? | Flache `src/`-Gliederung (wie die gesunde Alt-Struktur: core, render, input, modes, entities, state, contracts, ui) vs. Packages-Monorepo (`packages/game-core` …) | Flach starten; Monorepo nur bei echtem, wiederholtem Bedarf. Die Architekturregel Simulation ⊥ Renderer gilt in beiden Fällen | offen |
-| E5 | Gedächtnis-Format bestätigen? | Minimal-Set: `CLAUDE.md` (≤ 1 Seite), `docs/landkarte.md`, `docs/adr/`, `docs/changelog.md` — vs. zusätzliches (Playtest-Journal, Skizzen) | Minimal-Set mit 2-Minuten-Deckel (L8); Playtest-Notizen als Abschnitt im Changelog statt eigener Struktur | offen |
-| E6 | Repo-Name und Hosting? | Name frei; GitHub (wie dieses Planungs-Repo) vs. nur lokal | Keine Empfehlung zum Namen; GitHub, damit CI (Phase 1) und Mehrgeräte-Zugriff funktionieren | offen |
-
-### Gate B — vor der Kern-Migration (Phase 2)
-
-| ID | Frage | Optionen | Empfehlung | Status |
-| --- | --- | --- | --- | --- |
-| E7 | Contracts 1:1 übernehmen oder vereinfachen? | 1:1 vs. beim Umzug verschlanken | 1:1; vereinfachen erst, wenn der Konsument migriert ist | offen |
-
-### Gate C — vor Modi & Content (Phase 3)
-
-| ID | Frage | Optionen | Empfehlung | Status |
-| --- | --- | --- | --- | --- |
-| E8 | Übernahme-Umfang: welche Modi, Maps, Fahrzeuge, Items, Assets? | Alle 3 Modi + 6 Parcours + 15 Presets vs. kuratierte Auswahl | Keine Empfehlung — das ist die Produktentscheidung. Assets nur selektiv per Skript übernehmen (252 MB Gesamtbestand) | offen |
-
-### Gate D — vor Plattform-Schalen & Multiplayer (Phase 6/7)
-
-| ID | Frage | Optionen | Empfehlung | Status |
-| --- | --- | --- | --- | --- |
-| E9 | Multiplayer im Zielumfang? | LAN-Multiplayer migrieren vs. Singleplayer-Release, MP später | Keine Empfehlung; falls ja, eigene Phase 7 | offen |
-| E10 | Reihenfolge der Schalen laut E1? | Electron / Android / Editor-Tools in welcher Folge | Electron zuerst, frisch mit aktuellem Major (erledigt Alt-Finding P21 nebenbei); Android danach — die frisch gehärtete Tilt-Steuerung aus dem Altrepo migrieren | offen |
-
-### Gate E — Gedächtnis-Apparat (nur bei Schmerz-Trigger, L3)
-
-| ID | Frage | Optionen | Empfehlung | Status |
-| --- | --- | --- | --- | --- |
-| E11 | Wissensgraph? | Nein (Default) vs. später klein (Module/Abhängigkeiten/Tests) | Default nein. Neubewertung nur bei konkretem, wiederholtem Navigationsschmerz **und** explizitem Auftrag. Falls je gebaut: nie Source of Truth, nie Abschlussbeweis, nie Freigabeersatz | offen (Default: nein) |
-| E12 | RAG? | Nein (Default) vs. später nur für Prosa-Doku | Default nein. Kein Code-RAG (agentische Suche schlägt Vektor-RAG auf Code; Embeddings veralten je Edit). Neubewertung nur, falls eine große Prosa-Wissensbasis entsteht und direkte Suche nachweislich nicht reicht. Falls je gebaut: liest nur, ändert nie Code; keine Quelle → keine Antwort; bei Widerspruch gewinnt die Datei; Memory-Schreibvorgänge nur als Vorschlag mit Review | offen (Default: nein) |
-
-### Gate F — Erbe & Release
-
-| ID | Frage | Optionen | Empfehlung | Status |
-| --- | --- | --- | --- | --- |
-| E13 | Bot-Training? | Einfrieren + sichern (`python/`, Checkpoints, Trainingsplan-Doku) vs. mitnehmen (Phase 8) vs. aufgeben | Einfrieren + sichern; Reaktivierung frühestens nach Phase 3 (braucht deterministischen Kern) | offen |
-| E14 | Altrepo-Schicksal und offenes Erbe? | Ab wann read-only? `archive/` + `docs/archive/` (~390 MB): löschen/auslagern/behalten? Disposition der offenen Alt-Themen: P21/V146 (Electron-Security, Termin 2026-07-11 — verfällt, wenn das neue Repo Phase 6 nicht vorher erreicht), V106 (GLB-Maps), V113 (Hangar-Shell) | Altrepo ab Migrationsstart read-only (Verhaltensreferenz); Archiv auslagern oder löschen; P21 bewusst terminieren statt stillschweigend verfallen lassen; V106/V113 als Feature-Kandidaten nach Release | offen |
-| E15 | Release-Definition: Was ist 1.0? | Welche Targets, welcher Verteilweg (Download/Installer, Browser-Deploy, APK), welche Muss-Features, welches Qualitätskriterium | Vorschlag: 1.0 = Start-Target stabil + von dir bestandener Playtest aller E8-Inhalte; weitere Targets als 1.x | offen |
+| A | [`gates/gate-a.md`](gates/gate-a.md) | vor dem ersten Commit (Phase 0) | E1 Targets/Start-Target · E2 Stack & three.js · E3 Migrationsregel · E4 Repo-Struktur · E5 Gedächtnis-Format · E6 Name/Hosting | offen |
+| B | [`gates/gate-b.md`](gates/gate-b.md) | vor der Kern-Migration (Phase 2) | E7 Contracts 1:1 oder vereinfacht | offen |
+| C | [`gates/gate-c.md`](gates/gate-c.md) | vor Modi & Content (Phase 3) | E8 Übernahme-Umfang (Modi/Maps/Assets) | offen |
+| D | [`gates/gate-d.md`](gates/gate-d.md) | vor Schalen & Multiplayer (Phase 6/7) | E9 Multiplayer im Scope · E10 Reihenfolge der Schalen | offen |
+| E | [`gates/gate-e.md`](gates/gate-e.md) | nur bei Schmerz-Trigger (L3) | E11 Wissensgraph · E12 RAG — **Default beider: nein** | offen |
+| F | [`gates/gate-f.md`](gates/gate-f.md) | Erbe ab Migrationsstart, Release vor Phase 9 | E13 Bot-Training · E14 Altrepo/Erbe/P21 · E15 Release-Definition 1.0 | offen |
 
 **ADR-Format** (im neuen Repo, `docs/adr/NNN-titel.md`, 5–15 Zeilen): Status / Kontext / **Optionen** / Entscheidung / Konsequenzen. Nicht editieren — supersedieren. Nur architektur- und produktrelevante Entscheidungen.
 
