@@ -28,7 +28,7 @@ Fällig: vor Phase 6/7. Faktenbasis: [`../befund.md`](../befund.md). Hängt an E
 **Frage:** In welcher Reihenfolge entstehen die Schalen laut E1-End-Target-Liste?
 
 **Fakten:**
-- Electron frisch mit aktuellem Major aufgesetzt **erledigt Alt-Finding P21 nebenbei** (Electron-Security-Doppel-Major, Wiedervorlage 2026-07-11 — siehe E14).
+- Electron frisch mit aktuellem Major aufgesetzt **erledigt Alt-Finding P21 nebenbei** (Electron-Security-Doppel-Major, Wiedervorlage 2026-07-11 — siehe E14). **Achtung Frist:** Phase 6 liegt hinter Phase 0–5; das neue Repo wird die Frist 2026-07-11 fast sicher nicht vorher erreichen. Für die Deadline trägt „Phase 6 erledigt P21" daher **nicht** — bis dahin muss der Security-Bump ins Altrepo oder die Frist bewusst verschoben werden (E14).
 - Android/Capacitor: die zuletzt gehärtete Tilt-/Orientation-Steuerung (V131) ist bezahltes Wissen und wird migriert; kostet manuelle Device-Smokes.
 - Editor/Map-Tools sind nur relevant, wenn sie in der End-Target-Liste (E1) stehen.
 

@@ -43,7 +43,7 @@ Beim Anlegen des neuen Repos (Phase 1) werden die sechs Entscheidungen dort als 
 
 three.js: **einmalig heben in Phase 1** (Breaking Changes zahlen, solange fast kein Code da ist) vs. **alt pinnen** (maximale Verhaltensgleichheit, aber die Schuld wächst und wird später teurer).
 
-**Empfehlung:** Option 1 + three.js einmalig in Phase 1 heben. Die Typecheck-Abdeckung wird im ADR explizit festgehalten (was prüft `tsc` ab Tag 1, was erst nach Konversion).
+**Empfehlung:** Option 1 + three.js einmalig in Phase 1 heben. Die Typecheck-Abdeckung wird im ADR explizit festgehalten (was prüft `tsc` ab Tag 1, was erst nach Konversion). **Test-Pfad für TS mitentscheiden:** `node --test` (Phase 1) läuft nativ nur auf JS/MJS — TS-Tests brauchen einen Loader (`--import tsx` o. Ä.) oder einen vorgeschalteten Build-Schritt; im E2-ADR festlegen.
 
 **Entscheidung:** ____ (Datum; TS-Regel + three.js-Entscheid)
 

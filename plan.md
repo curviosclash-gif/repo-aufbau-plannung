@@ -109,22 +109,24 @@ Gate A beantworten (E1–E6).
 
 Die dünnste durchgehende, produktionsechte spielbare Scheibe — kein Prototyp, jede Zeile bleibt.
 
-1. Repo anlegen (laut E6), `.nvmrc`, Vite, three.js (Version laut E2), ESLint Standard, `node --test`.
+1. Repo anlegen (laut E6), `.gitignore`, `.nvmrc`, Vite, three.js (Version laut E2), ESLint Standard, `node --test`. LICENSE + Dependency-Policy spätestens vor dem ersten Deploy (Phase 9).
 2. CI ab Tag 1, bewusst klein: ein Workflow mit Lint + Tests + Build. Keine weiteren Gates, keine Pre-Commit-Hooks außer Lint.
 3. Gedächtnis-Grundgerüst laut E5 anlegen; Stop-Regeln (Teil 3) in die `CLAUDE.md`.
-4. Skeleton-Slice: leere Szene → ein steuerbares Objekt → Game-Loop-Tick → ein Rundenende-Event → ein Test darauf → CI grün. Dafür die ersten Alt-Module dünn anziehen (`GameLoop.js`, Teile von Renderer und Input).
+4. Skeleton-Slice: leere Szene → ein steuerbares Objekt → Game-Loop-Tick → ein Rundenende-Event → ein Test darauf → CI grün. Dafür die ersten Alt-Module dünn anziehen (`GameLoop.js`, Teile von Renderer und Input). Das Skeleton bleibt **contract-frei**: `GameLoop.js` und `src/core/input/` importieren keine `shared/contracts` (verifiziert), und der minimale Renderer-Schnitt braucht die contract-ziehenden Render-Dateien (CameraRig/Shadow/Recording) nicht. So wird E7/Gate B nicht schon in Phase 1 vorentschieden — die Gameplay-Contracts kommen erst in Phase 2.
 
 **Done:** `npm run dev` zeigt ein steuerbares Objekt; CI grün; ADRs und Landkarte mit ersten Zeilen committed.
 
 ### Phase 2 — Spielkern migrieren (Strangler-Takt)
 
-Gate B (E7) vorab beantworten. Quellpfade = Altrepo; es bleibt parallel lesbar als Verhaltensreferenz.
+Gate B (E7) vorab beantworten. Quellpfade = Altrepo; es bleibt parallel lesbar als reine read-only-Referenz (ohne Live-Routing — „Strangler" hier im übertragenen Sinn; präziser: inkrementelle Modul-Migration).
 
 Reihenfolge: benötigte Contracts (`src/shared/contracts/`) → Bootstrap/Loop (`main.js`, `GameBootstrap.js`, `AppInitializer.js`) → Renderer (**ohne** Recording-Pfad, P48 bleibt zurück) → Input Desktop → `ClassicModeStrategy` + `GameModeRegistry` → Entities + State.
 
 **Fester Takt pro Modul:** kopieren → Imports anpassen → zugehörige Alt-Tests aus `tests/` mitnehmen → Lint/Typecheck/Tests/Build selbst ausführen → Landkarten-Zeile (mit Herkunft) → Commit mit Ein-Satz-Meldung.
 
 **Determinismus-Anker:** gleiche Seeds, gleiche Ergebnisse gegen das Altrepo; die migrierten Contract-Tests und die Ghost-Traces des Altrepos sind die Fixtures dafür.
+
+**Go/No-Go (Timebox):** Ist die Classic-Runde nach ~3 Arbeitssitzungen nicht spielbar, wird der Migrationsansatz bewusst neu bewertet — adressiert das Risiko „Migration wird nie fertig" (befund.md §3). Die Playtest-Checkpoints prüfen Qualität; dieser Punkt prüft, ob die Migration aus dem Ruder läuft. (Sitzungszahl anpassbar.)
 
 **Done:** Eine Classic-Runde ist im Browser spielbar (Start → Runde → Ende), migrierte Tests grün, jede Datei in der Landkarte. **Playtest-Checkpoint.**
 
@@ -133,7 +135,7 @@ Reihenfolge: benötigte Contracts (`src/shared/contracts/`) → Bootstrap/Loop (
 Gate C (E8) vorab beantworten.
 
 1. Hunt-Modus (`HuntModeStrategy.js`, `src/hunt/`).
-2. Arcade inkl. Ghost (`src/core/arcade/`): `ArcadeRunRuntime.js` (1492 Zeilen) beim Umzug in 2–3 Module schneiden — einziger geplanter Zuschnitt; Ghost-Edge-Case-Tests zwingend mitnehmen.
+2. Arcade inkl. Ghost (`src/core/arcade/`): `ArcadeRunRuntime.js` (1492 Zeilen) beim Umzug in 2–3 Module schneiden — einziger geplanter Zuschnitt; Ghost-Edge-Case-Tests zwingend mitnehmen. (Ghost = migrierte **Simulations**-Spur fürs Selbstduell — abzugrenzen vom Render-Recording-Pfad P48 in Phase 5.)
 3. Content laut E8: Map-Presets, `data/maps/`, `data/vehicles/`, Balancing-Contracts 1:1.
 4. Assets selektiv per Skript — `scripts/export-game-only-repo.mjs` aus dem Altrepo ist die Blaupause für die Auswahl.
 
@@ -149,13 +151,13 @@ Gate C (E8) vorab beantworten.
 ### Phase 5 — Subsystem-Komplettierung
 
 1. Items/Powerups/Waffen-Feinschliff laut E8.
-2. Recording/Replay als Neuschreibung (P48-Wiedereinstieg — bewusst erst jetzt, mit stabilem Renderer).
+2. Recording/Replay als Neuschreibung (P48-Wiedereinstieg — bewusst erst jetzt, mit stabilem Renderer). Dies ist der **Render**-Recording-Pfad, nicht die Ghost-Trace aus Phase 3.
 
 **Done:** Zielumfang laut E8 vollständig spielbar. **Playtest-Checkpoint.**
 
 ### Phase 6 — Plattform-Schalen (laut E1/E10)
 
-Je Schale ein eigener, einzeln abgeschlossener Slice: Electron frisch mit aktuellem Major (erledigt P21); Android/Capacitor mit migrierter Tilt-Steuerung; Editor/Map-Tools nur falls Target.
+Je Schale ein eigener, einzeln abgeschlossener Slice: Electron frisch mit aktuellem Major (erledigt P21 — aber nur, falls Phase 6 vor der Frist 2026-07-11 erreicht wird; sonst Security-Bump ins Altrepo oder bewusste Verschiebung laut E14); Android/Capacitor mit migrierter Tilt-Steuerung; Editor/Map-Tools nur falls Target.
 
 **Done je Schale:** eigener Build + ein Smoke-Test.
 
@@ -163,9 +165,9 @@ Je Schale ein eigener, einzeln abgeschlossener Slice: Electron frisch mit aktuel
 
 `server/`-Signaling + `src/network/` migrieren; ein Playwright-Smoke für den Verbindungsweg.
 
-### Phase 8 — Bot-Training (nur falls E13 = mitnehmen)
+### Phase 8 — Bot-Training (nur falls E13 ≠ aufgeben)
 
-Bridge (`WebSocketTrainerBridge.js`), `python/`, Checkpoints. Voraussetzung: deterministischer Kern aus Phase 2/3.
+Bridge (`WebSocketTrainerBridge.js`), `python/`, Checkpoints. Voraussetzung: deterministischer Kern aus Phase 2/3. Sowohl Option 1 „einfrieren + sichern" (empfohlen — Reaktivierung erfolgt hier) als auch Option 2 „mitnehmen" führen in diese Phase; nur Option 3 „aufgeben" streicht sie.
 
 ### Phase 9 — Release & Altrepo-Stilllegung
 
@@ -202,6 +204,7 @@ Eine Regel wird nur aktiv, wenn alle vier Punkte stimmen: Sie verhindert einen e
 - Dieser Plan ist die **einzige** Planquelle (L7). Änderungen direkt hier, per Commit nachvollziehbar — keine Kopien, keine Parallelversionen.
 - Entscheidungen: Status-Spalte in Teil 4 von „offen" auf „entschieden (ADR NNN)" setzen, sobald der ADR im neuen Repo liegt.
 - Phasenfortschritt: Tabelle unten aktualisieren — mehr Status-Buchhaltung gibt es nicht.
+- **Lebensende dieses Repos:** Es ist erledigt, sobald E1–E15 als ADRs im neuen Spiel-Repo liegen. Dann wird es read-only/archiviert — keine Parallelpflege neben dem Spiel-Repo (L2/L7).
 
 | Phase | Status |
 | --- | --- |

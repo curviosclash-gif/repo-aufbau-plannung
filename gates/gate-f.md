@@ -33,7 +33,7 @@ Fällig: E13/E14 ab Migrationsstart relevant, E15 vor Phase 9. Faktenbasis: [`..
 - Offenes Sach-Erbe aus dem Altrepo:
   - **P21 / V146** — Electron-Security-Doppel-Major, Wiedervorlage **2026-07-11**. Wird vom frischen Electron-Setup in Phase 6 erledigt — **verfällt aber stillschweigend**, falls das neue Repo Phase 6 nicht vorher erreicht. Bewusst terminieren.
   - **V106** (kuratierte GLB-Map-Varianz) und **V113** (Hangar-Shell + Rules Panel) — offene Produktblöcke, Kandidaten für Post-1.0.
-  - Findings **P14/P45–P48** — P45/P48 sind als Neuschreibungen schon in Phase 4/5 verplant; P14/P47 mitdenken.
+  - Findings **P14/P45–P48** (aus `docs/prozess/Open_Findings.md` des Altrepos: P14 = Listener-Duplikation hinter P45, P47 = Boundary-Drift, P48 = Recorder-Drift) — P45/P48 sind als Neuschreibungen schon in Phase 4/5 verplant; P14/P47 mitdenken.
 - Git-Historie des Altrepos (1666 Commits) wird nicht migriert; das Altrepo bleibt als Nachschlagewerk inkl. Historie erhalten.
 
 **Optionen / Teilentscheidungen:**
